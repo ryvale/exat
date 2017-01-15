@@ -1,0 +1,25 @@
+separators '@{', '%', '?', '}', ' ', '\n', '\t', '\r', '..', ',', '.', '=', '>', '<', '+', '-', '*', '/';
+BLANK : (' '|'\n'|'\r'|'\t')*;
+
+ID : ((['_']('0'..'9'|'a'..'z'|'A'..'Z'))|'a'..'z'|'A'..'Z')('0'..'9'|'a'..'z'|'A'..'Z'|['_'])*;
+CHAR : ['\\''] [$] ['\\''];
+INTEGER : ('0'..'9')+;
+STRING : ['\\''] ([!('\\'')]|['\\\\''])* ['\\''];
+
+root : !'@{'* tplexp*;
+
+tplexp : '@{' exp_part|stm_part '}' !'@{'*;
+
+exp_part : '?'? exp;
+
+stm_part : '%' BLANK stm_for|stm_if;
+
+stm_bloc_end : '@{%' BLANK 'end' BLANK;
+
+stm_for : 'for' BLANK ID BLANK 'in' BLANK (INTEGER'..'INTEGER)|(CHAR'..'CHAR) BLANK '}' root stm_bloc_end;
+
+stm_if : 'if' BLANK exp BLANK '}' root ('@{%' BLANK 'else' BLANK '}' root)? stm_bloc_end;
+
+exp : exp_primary BLANK ('.'|'='|'>'|'<'|'+'|'-'|'*'|'/' BLANK exp)*;
+
+exp_primary : ID|INTEGER|STRING|('(' BLANK exp BLANK ')');

@@ -1,0 +1,23 @@
+separators '@{', '%', '?', '}', ' ', '\n', '\t', '\r', '..', ',', '.', '=', '>', '<', '+', '-', '*', '/';
+BLANK : (' '|'\n'|'\r'|'\t')*;
+
+CHAR : ['\\''] [$] ['\\''];
+STRING : ['\\''] ([!('\\'')]|['\\\\''])* ['\\''];
+
+root : !'@{'* tplexp*;
+
+tplexp : '@{' exp_part|stm_part '}' !'@{'*;
+
+exp_part : '?'? exp;
+
+stm_part : '%' BLANK stm_for|stm_if;
+
+stm_bloc_end : '@{%' BLANK 'end' BLANK;
+
+stm_for : 'for' BLANK LX_ID BLANK 'in' BLANK (LX_INT'..'LX_INT)|(CHAR'..'CHAR) BLANK '}' root stm_bloc_end;
+
+stm_if : 'if' BLANK exp BLANK '}' root ('@{%' BLANK 'else' BLANK '}' root)? stm_bloc_end;
+
+exp : exp_primary BLANK ('.'|'='|'>'|'<'|'+'|'-'|'*'|'/' BLANK exp)*;
+
+exp_primary : LX_ID|LX_INT|STRING|('(' BLANK exp BLANK ')');
